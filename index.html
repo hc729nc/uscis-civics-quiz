@@ -1164,6 +1164,11 @@
         function checkAnswer(userAnswer, acceptableAnswers) {
             const normalized = normalizeAnswer(userAnswer);
 
+            // Require at least 2 characters
+            if (normalized.length < 2) {
+                return false;
+            }
+
             // Check for state-specific questions
             if (acceptableAnswers.includes("Answers vary by state") ||
                 acceptableAnswers.includes("Answers vary by district")) {
@@ -1173,9 +1178,11 @@
             return acceptableAnswers.some(answer => {
                 const normalizedAcceptable = normalizeAnswer(answer);
                 // Check exact match or if user answer contains the acceptable answer
+                // Only allow partial match if user typed at least 50% of the answer
+                const minLength = Math.floor(normalizedAcceptable.length * 0.5);
                 return normalized === normalizedAcceptable ||
                        normalized.includes(normalizedAcceptable) ||
-                       normalizedAcceptable.includes(normalized);
+                       (normalized.length >= minLength && normalizedAcceptable.includes(normalized));
             });
         }
 
